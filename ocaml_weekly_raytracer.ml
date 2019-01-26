@@ -5,20 +5,9 @@ let nx = 200
 let ny = 100
 let output_file_name = "output.ppm"
 
-(* TODO 遅い *)
-(* int -> int -> (int * int) sexp_list *)
-let gen_x_y_list x y = List.fold_left
-                         ~init:[]
-                         ~f:List.append
-                         (List.map (List.rev (List.range 0 y))
-                                   ~f:(fun ly ->
-                                     List.map (List.range 0 x)
-                                              ~f:(fun lx ->
-                                                (lx, ly))))
-
 (* 1ピクセル分を描画する *)
-(* Out_channel.t -> (int * int) -> unit *)
-let render chan (x, y) =
+(* Out_channel.t -> int -> int -> unit *)
+let render chan x y =
   let r = (Int.to_float x) /. (Int.to_float nx) in
   let g = (Int.to_float y) /. (Int.to_float ny) in
   let b = 0.2 in
@@ -37,13 +26,12 @@ let () =
   let chan = Out.create output_file_name
   in begin
       Out.output_string chan ("P3\n" ^ (Int.to_string nx) ^ " " ^ (Int.to_string ny) ^ "\n255\n");
-      List.iter (gen_x_y_list nx ny) ~f:(render chan);
+      List.iter (List.rev (List.range 0 ny))
+                ~f:(fun y ->
+                  List.iter (List.range 0 nx)
+                            ~f:(fun x -> render chan x y));
       Out.close chan;
     end
-                         
-  
-  
-  
 
 
 
