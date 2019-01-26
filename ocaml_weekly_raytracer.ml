@@ -1,1 +1,6 @@
-print_endline "Hello!"
+(* open Base *)
+
+let () =
+  Stdio.print_endline "Hello"
+
+
