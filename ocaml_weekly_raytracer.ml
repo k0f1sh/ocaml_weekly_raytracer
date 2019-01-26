@@ -18,7 +18,6 @@ let render chan x y =
          (Int.to_string (Float.to_int (255.99 *. g))) ^ " " ^
            (Int.to_string (Float.to_int (255.99 *. b))));
     Out.newline chan;
-    Out.flush chan;
   end
 
 (* MAIN *)
