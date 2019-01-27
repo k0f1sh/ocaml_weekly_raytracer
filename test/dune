@@ -1,0 +1,3 @@
+(test
+ (name ocaml_weekly_raytracer_test)
+ (libraries base stdio))
