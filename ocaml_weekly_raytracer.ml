@@ -24,13 +24,15 @@ let render chan x y =
 let () =
   let chan = Out.create output_file_name
   in begin
+      Out.print_endline "start...";
       Out.output_string chan ("P3\n" ^ (Int.to_string nx) ^ " " ^ (Int.to_string ny) ^ "\n255\n");
       List.iter (List.rev (List.range 0 ny))
                 ~f:(fun y ->
                   List.iter (List.range 0 nx)
                             ~f:(fun x -> render chan x y));
       Out.close chan;
+      Out.print_endline "complete!";
     end
-
+   
 
 
