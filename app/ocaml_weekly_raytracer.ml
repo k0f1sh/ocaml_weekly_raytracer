@@ -1,5 +1,6 @@
 open Base
 module Out = Stdio.Out_channel
+module Vec3 = Raylib.Vec3
 
 let nx = 200
 let ny = 100
@@ -8,9 +9,11 @@ let output_file_name = "output.ppm"
 (* 1ピクセル分を描画する *)
 (* Out_channel.t -> int -> int -> unit *)
 let render chan x y =
-  let r = (Int.to_float x) /. (Int.to_float nx) in
-  let g = (Int.to_float y) /. (Int.to_float ny) in
-  let b = 0.2 in
+  let x = (Int.to_float x) /. (Int.to_float nx) in
+  let y = (Int.to_float y) /. (Int.to_float ny) in
+  let z = 0.2 in
+  let v = Vec3.create x y z in
+  let (r, g, b) = Vec3.xyz v in
   begin
     Out.output_string
       chan
