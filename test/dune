@@ -1,3 +1,9 @@
-(test
- (name ocaml_weekly_raytracer_test)
- (libraries base stdio))
+(executable
+ (name run_tests)
+ (libraries
+  raylib base stdio alcotest))
+
+(alias
+ (name runtest)
+ (deps run_tests.exe)
+ (action (run %{deps} -q --color=always)))

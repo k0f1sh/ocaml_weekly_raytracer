@@ -1,4 +1,4 @@
 (executable
  (name ocaml_weekly_raytracer)
- (libraries base stdio))
+ (libraries raylib base stdio))
 
