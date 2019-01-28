@@ -1,3 +1,3 @@
 #!/bin/bash
 
-dune exec ./ocaml_weekly_raytracer.exe
+dune exec src/ocaml_weekly_raytracer.exe
