@@ -10,9 +10,9 @@ let output_file_name = "output.ppm"
 let color r =
   let unit_direction = Vec3.unit_vector (Ray.direction r) in
   let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
-  let a = 1.0 -. t in
+  let invert_t = 1.0 -. t in
   let open Vec3 in
-  ((Vec3.create 1.0 1.0 1.0) *. a) + ((Vec3.create 0.5 0.7 1.0) *. t)
+  ((Vec3.create 1.0 1.0 1.0) *. invert_t) + ((Vec3.create 0.5 0.7 1.0) *. t)
 
 let get_ray origin lower_left_corner horizontal vertical u v =
   let open Vec3 in
