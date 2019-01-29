@@ -1,10 +1,6 @@
 open Base
 
-type t = {
-    x:float;
-    y:float;
-    z:float;
-  }
+type t
 
 val create: float -> float -> float -> t
 
