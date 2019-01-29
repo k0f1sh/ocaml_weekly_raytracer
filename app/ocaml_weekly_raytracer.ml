@@ -13,11 +13,19 @@ let hit_sphere center radius r =
   let b = 2.0 *. (Vec3.dot oc @@ Ray.direction r) in
   let c = (Vec3.dot oc oc) -. radius *. radius in
   let discriminant = b *. b -. 4.0 *. a *. c in
-  Caml.(>=) discriminant 0.0
+  if Caml.(<) discriminant 0.0 then
+    -1.0
+  else
+    ((-1.0 *. b) -. (Float.sqrt discriminant)) /. (2.0 *. a)
 
 let color r =
-  if hit_sphere (Vec3.create 0.0 0.0 (-1.0)) 0.5 r then
-    Vec3.create 1.0 0.0 0.0
+  let t = hit_sphere (Vec3.create 0.0 0.0 (-1.0)) 0.5 r in
+  if Caml.(>) t 0.0 then
+    let n = Vec3.unit_vector @@
+              Vec3.(-)
+                  (Ray.point_at_parameter r t)
+                  (Vec3.create 0.0 0.0 (-1.0)) in
+    Vec3.( *. ) (Vec3.(+) (Vec3.create 1.0 1.0 1.0) n) 0.5
   else
     let unit_direction = Vec3.unit_vector (Ray.direction r) in
     let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
