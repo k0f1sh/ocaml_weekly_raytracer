@@ -7,6 +7,7 @@ end
 
 (* sphereには center と radiusが必要。 *)
 (* 型パラメータで必要な型を渡せるように? *)
+(* ヴァリアント使うのが良いかもしれない。そしてそれを第一引数に *)
 (* SphereとかPolygonとか *)
 
 module SPHERE: Hitable = struct
