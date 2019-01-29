@@ -7,12 +7,23 @@ let nx = 200
 let ny = 100
 let output_file_name = "output.ppm"
 
+let hit_sphere center radius r =
+  let oc = Vec3.(-) (Ray.origin r) center in
+  let a = Vec3.dot (Ray.direction r) (Ray.direction r) in
+  let b = 2.0 *. (Vec3.dot oc @@ Ray.direction r) in
+  let c = (Vec3.dot oc oc) -. radius *. radius in
+  let discriminant = b *. b -. 4.0 *. a *. c in
+  Caml.(>=) discriminant 0.0
+
 let color r =
-  let unit_direction = Vec3.unit_vector (Ray.direction r) in
-  let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
-  let invert_t = 1.0 -. t in
-  let open Vec3 in
-  ((Vec3.create 1.0 1.0 1.0) *. invert_t) + ((Vec3.create 0.5 0.7 1.0) *. t)
+  if hit_sphere (Vec3.create 0.0 0.0 (-1.0)) 0.5 r then
+    Vec3.create 1.0 0.0 0.0
+  else
+    let unit_direction = Vec3.unit_vector (Ray.direction r) in
+    let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
+    let invert_t = 1.0 -. t in
+    let open Vec3 in
+    ((Vec3.create 1.0 1.0 1.0) *. invert_t) + ((Vec3.create 0.5 0.7 1.0) *. t)
 
 let get_ray origin lower_left_corner horizontal vertical u v =
   let open Vec3 in
