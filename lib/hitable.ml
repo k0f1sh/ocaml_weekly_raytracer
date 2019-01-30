@@ -33,3 +33,18 @@ let hit hitable r t_min t_max hit_record =
   match hitable with
     Sphere (center, radius) -> hit_sphere center radius r t_min t_max hit_record
 
+(* TODO *)
+(* module Sphere : sig
+ *   type t
+ *   val create : pos -> radius -> t
+ *   val hit : ...
+ * end *)
+(* こんなのがいくつか出来上がる *)
+
+(* hit、第一引数を除くと元のオブジェクトの型は消えるので *)
+(* type scene = Ray.t -> float -> float -> Hit_record.t option *)
+(* みたいに考えられるのではないか *)
+(* このsceneで済むならそれを引き回す....足りなかったらレコード作って渡すかファンクタ使うか... *)
+
+
+
