@@ -14,7 +14,7 @@ let hit_sphere center radius r t_min t_max hit_record =
     let temp = ((-1.0 *. b) -. (Float.sqrt discriminant)) /. a in
     if ((Caml.(<) temp t_max) && (Caml.(>) temp t_min)) then
       begin
-        HitRecord.update hit_record temp (Ray.point_at_parameter r (HitRecord.tf hit_record)) (Vec3.divf (Vec3.minus (HitRecord.p hit_record) center) radius);
+        Hit_record.update hit_record temp (Ray.point_at_parameter r (Hit_record.tf hit_record)) (Vec3.divf (Vec3.minus (Hit_record.p hit_record) center) radius);
         true
       end
     else
@@ -23,7 +23,7 @@ let hit_sphere center radius r t_min t_max hit_record =
     let temp = ((-1.0 *. b) +. (Float.sqrt discriminant)) /. a in
     if ((Caml.(<) temp t_max) && (Caml.(>) temp t_min)) then
       begin
-        HitRecord.update hit_record temp (Ray.point_at_parameter r (HitRecord.tf hit_record)) (Vec3.divf (Vec3.minus (HitRecord.p hit_record) center) radius);
+        Hit_record.update hit_record temp (Ray.point_at_parameter r (Hit_record.tf hit_record)) (Vec3.divf (Vec3.minus (Hit_record.p hit_record) center) radius);
         true
       end
     else

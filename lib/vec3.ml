@@ -5,7 +5,7 @@ type t = {
     z:float;
   }
 
-let create x y z = {x=x;y=y;z=z}
+let create x y z = { x; y; z }
 
 let xyz v = (v.x, v.y, v.z)
 
