@@ -6,7 +6,7 @@ type t = Sphere of Vec3.t * float
 let sphere center radius = Sphere (center, radius)
 let of_list hitables = Hitable_list hitables
 
-let hit_sphere center radius r t_min t_max hit_record =
+let hit_sphere center radius r t_min t_max =
   let oc = Vec3.minus (Ray.origin r) center in
   let a = Vec3.dot (Ray.direction r) (Ray.direction r) in
   let b = Vec3.dot oc @@ Ray.direction r in
@@ -15,33 +15,42 @@ let hit_sphere center radius r t_min t_max hit_record =
   if Caml.(>) discriminant 0.0 then
     let temp = ((-1.0 *. b) -. (Float.sqrt discriminant)) /. a in
     if ((Caml.(<) temp t_max) && (Caml.(>) temp t_min)) then
+      let p = (Ray.point_at_parameter r temp) in
       Some (Hit_record.create
-                temp
-                (Ray.point_at_parameter r (Hit_record.tf hit_record))
-                (Vec3.divf (Vec3.minus (Hit_record.p hit_record) center) radius))
+              temp
+              p
+              (Vec3.divf (Vec3.minus p center) radius))
     else
       None
   else
     let temp = ((-1.0 *. b) +. (Float.sqrt discriminant)) /. a in
     if ((Caml.(<) temp t_max) && (Caml.(>) temp t_min)) then
+      let p = (Ray.point_at_parameter r temp) in
       Some (Hit_record.create
-                temp
-                (Ray.point_at_parameter r (Hit_record.tf hit_record))
-                (Vec3.divf (Vec3.minus (Hit_record.p hit_record) center) radius))
+              temp
+              p
+              (Vec3.divf (Vec3.minus p center) radius))
     else
       None
 
-let rec hit_hitable_list hitable_list r t_min t_max hit_record = match hitable_list with
-    [] -> Some hit_record
+let rec hit_hitable_list_sub hitable_list r t_min hit_record =
+  match hitable_list with
+    [] -> hit_record
   | first :: rest ->
-     match hit first r t_min t_max hit_record with
-       Some new_hit_record -> hit_hitable_list rest r t_min (Hit_record.tf new_hit_record) new_hit_record
-     | None -> hit_hitable_list rest r t_min t_max hit_record
-     
-and hit hitable r t_min t_max hit_record =
+     match (hit first r t_min (Hit_record.tf hit_record)) with
+       Some new_hit_record -> hit_hitable_list_sub rest r t_min new_hit_record
+     | None -> hit_hitable_list_sub rest r t_min hit_record
+and hit_hitable_list hitable_list r t_min t_max =
+  match hitable_list with
+    [] -> None
+  | first :: rest ->
+     match hit first r t_min t_max with
+       Some new_hit_record -> Some (hit_hitable_list_sub rest r t_min new_hit_record)
+     | None -> hit_hitable_list rest r t_min t_max
+and hit hitable r t_min t_max =
   match hitable with
-    Sphere (center, radius) -> hit_sphere center radius r t_min t_max hit_record
-  | Hitable_list hitable_list -> hit_hitable_list hitable_list r t_min t_max hit_record
+    Sphere (center, radius) -> hit_sphere center radius r t_min t_max
+  | Hitable_list hitable_list -> hit_hitable_list hitable_list r t_min t_max
 
 (* TODO *)
 (* module Sphere : sig

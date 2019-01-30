@@ -2,39 +2,31 @@ open Base
 module Out = Stdio.Out_channel
 module Vec3 = Raylib.Vec3
 module Ray = Raylib.Ray
+module Hitable = Raylib.Hitable
+module Hit_record = Raylib.Hit_record
 
 let nx = 200
 let ny = 100
 let output_file_name = "output.ppm"
 
-let hit_sphere center radius r =
-  let oc = Vec3.minus (Ray.origin r) center in
-  let a = Vec3.dot (Ray.direction r) (Ray.direction r) in
-  let b = 2.0 *. (Vec3.dot oc @@ Ray.direction r) in
-  let c = (Vec3.dot oc oc) -. radius *. radius in
-  let discriminant = b *. b -. 4.0 *. a *. c in
-  if Caml.(<) discriminant 0.0 then
-    -1.0
-  else
-    ((-1.0 *. b) -. (Float.sqrt discriminant)) /. (2.0 *. a)
-
-let color r =
-  let t = hit_sphere (Vec3.create 0.0 0.0 (-1.0)) 0.5 r in
-  if Caml.(>) t 0.0 then
-    let n = Vec3.unit_vector @@
-              Vec3.minus
-                  (Ray.point_at_parameter r t)
-                  (Vec3.create 0.0 0.0 (-1.0)) in
-    Vec3.mulf (Vec3.plus (Vec3.create 1.0 1.0 1.0) n) 0.5
-  else
-    let unit_direction = Vec3.unit_vector (Ray.direction r) in
-    let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
-    let invert_t = 1.0 -. t in
-    Vec3.plus (Vec3.mulf (Vec3.create 1.0 1.0 1.0) invert_t)    
-              (Vec3.mulf (Vec3.create 0.5 0.7 1.0) t)
+let color r hitable =
+  match (Hitable.hit hitable r 0.0 Float.max_finite_value) with
+    Some hit_record ->
+     Vec3.mulf (Vec3.plus (Vec3.create 1.0 1.0 1.0) (Hit_record.normal hit_record)) 0.5
+  | None ->
+     let unit_direction = Vec3.unit_vector (Ray.direction r) in
+     let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
+     let invert_t = 1.0 -. t in
+     Vec3.plus (Vec3.mulf (Vec3.create 1.0 1.0 1.0) invert_t)
+               (Vec3.mulf (Vec3.create 0.5 0.7 1.0) t)
 
 let get_ray origin lower_left_corner horizontal vertical u v =
   Ray.create origin @@ Vec3.plus (Vec3.plus lower_left_corner (Vec3.mulf horizontal u)) (Vec3.mulf vertical v)
+
+let scene = Hitable.of_list [
+                Hitable.sphere (Vec3.create 0.0 0.0 (-1.0)) 0.5;
+                Hitable.sphere (Vec3.create 0.0 (-100.5) (-1.0)) 100.0;
+]
 
 (* 1ピクセル分を描画する *)
 (* Out_channel.t -> int -> int -> unit *)
@@ -46,7 +38,7 @@ let render chan x y =
   let u = (Int.to_float x) /. (Int.to_float nx) in
   let v = (Int.to_float y) /. (Int.to_float ny) in
   let r = get_ray origin lower_left_corner horizontal vertical u v in
-  let col = color r in
+  let col = color r scene in
   let (r, g, b) = Vec3.xyz col in
   begin
     Out.output_string
@@ -71,5 +63,4 @@ let () =
       Out.print_endline "complete!";
     end
    
-
 
