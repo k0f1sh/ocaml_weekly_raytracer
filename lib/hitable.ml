@@ -1,8 +1,10 @@
 open Base
 
 type t = Sphere of Vec3.t * float
+       | Hitable_list of t list
 
 let sphere center radius = Sphere (center, radius)
+let of_list hitables = Hitable_list hitables
 
 let hit_sphere center radius r t_min t_max hit_record =
   let oc = Vec3.minus (Ray.origin r) center in
@@ -29,9 +31,17 @@ let hit_sphere center radius r t_min t_max hit_record =
     else
       None
 
-let hit hitable r t_min t_max hit_record =
+let rec hit_hitable_list hitable_list r t_min t_max hit_record = match hitable_list with
+    [] -> Some hit_record
+  | first :: rest ->
+     match hit first r t_min t_max hit_record with
+       Some new_hit_record -> hit_hitable_list rest r t_min (Hit_record.tf new_hit_record) new_hit_record
+     | None -> hit_hitable_list rest r t_min t_max hit_record
+     
+and hit hitable r t_min t_max hit_record =
   match hitable with
     Sphere (center, radius) -> hit_sphere center radius r t_min t_max hit_record
+  | Hitable_list hitable_list -> hit_hitable_list hitable_list r t_min t_max hit_record
 
 (* TODO *)
 (* module Sphere : sig
