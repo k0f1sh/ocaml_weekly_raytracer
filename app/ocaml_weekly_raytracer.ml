@@ -8,7 +8,7 @@ let ny = 100
 let output_file_name = "output.ppm"
 
 let hit_sphere center radius r =
-  let oc = Vec3.(-) (Ray.origin r) center in
+  let oc = Vec3.minus (Ray.origin r) center in
   let a = Vec3.dot (Ray.direction r) (Ray.direction r) in
   let b = 2.0 *. (Vec3.dot oc @@ Ray.direction r) in
   let c = (Vec3.dot oc oc) -. radius *. radius in
@@ -22,20 +22,19 @@ let color r =
   let t = hit_sphere (Vec3.create 0.0 0.0 (-1.0)) 0.5 r in
   if Caml.(>) t 0.0 then
     let n = Vec3.unit_vector @@
-              Vec3.(-)
+              Vec3.minus
                   (Ray.point_at_parameter r t)
                   (Vec3.create 0.0 0.0 (-1.0)) in
-    Vec3.( *. ) (Vec3.(+) (Vec3.create 1.0 1.0 1.0) n) 0.5
+    Vec3.mulf (Vec3.plus (Vec3.create 1.0 1.0 1.0) n) 0.5
   else
     let unit_direction = Vec3.unit_vector (Ray.direction r) in
     let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
     let invert_t = 1.0 -. t in
-    let open Vec3 in
-    ((Vec3.create 1.0 1.0 1.0) *. invert_t) + ((Vec3.create 0.5 0.7 1.0) *. t)
+    Vec3.plus (Vec3.mulf (Vec3.create 1.0 1.0 1.0) invert_t)    
+              (Vec3.mulf (Vec3.create 0.5 0.7 1.0) t)
 
 let get_ray origin lower_left_corner horizontal vertical u v =
-  let open Vec3 in
-  Ray.create origin (lower_left_corner + (horizontal *. u) + (vertical *. v))
+  Ray.create origin @@ Vec3.plus (Vec3.plus lower_left_corner (Vec3.mulf horizontal u)) (Vec3.mulf vertical v)
 
 (* 1ピクセル分を描画する *)
 (* Out_channel.t -> int -> int -> unit *)
