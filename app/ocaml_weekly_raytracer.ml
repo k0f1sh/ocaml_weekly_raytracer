@@ -23,7 +23,7 @@ let rec random_in_unit_sphere () =
     p
   
 let rec color r hitable =
-  match (Hitable.hit hitable r 0.0 Float.max_finite_value) with
+  match (Hitable.hit hitable r 0.001 Float.max_finite_value) with
     Some hit_record ->
      let target = (Vec3.plus (Vec3.plus (Hit_record.p hit_record)
                                         (Hit_record.normal hit_record))
