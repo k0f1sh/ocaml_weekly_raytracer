@@ -4,9 +4,11 @@ module Vec3 = Raylib.Vec3
 module Ray = Raylib.Ray
 module Hitable = Raylib.Hitable
 module Hit_record = Raylib.Hit_record
+module Camera = Raylib.Camera
 
 let nx = 200
 let ny = 100
+let ns = 100
 let output_file_name = "output.ppm"
 
 let color r hitable =
@@ -20,25 +22,29 @@ let color r hitable =
      Vec3.plus (Vec3.mulf (Vec3.create 1.0 1.0 1.0) invert_t)
                (Vec3.mulf (Vec3.create 0.5 0.7 1.0) t)
 
-let get_ray origin lower_left_corner horizontal vertical u v =
-  Ray.create origin @@ Vec3.plus (Vec3.plus lower_left_corner (Vec3.mulf horizontal u)) (Vec3.mulf vertical v)
-
 let scene = Hitable.of_list [
                 Hitable.sphere (Vec3.create 0.0 0.0 (-1.0)) 0.5;
                 Hitable.sphere (Vec3.create 0.0 (-100.5) (-1.0)) 100.0;
 ]
 
+(* サンプリング1回 *)
+let sample u v =
+  let r = Camera.get_ray Camera.default_camera u v in
+  color r scene
+
+(* サンプリングns回 *)
+let sample_ns x y =
+  let col = List.fold (List.range 0 100) ~init:(Vec3.create 0.0 0.0 0.0)
+            ~f:(fun col _ ->
+              let u = ((Int.to_float x) +. Random.float 1.0) /. (Int.to_float nx) in
+              let v = ((Int.to_float y) +. Random.float 1.0) /. (Int.to_float ny) in
+              Vec3.plus col @@ sample u v) in
+  Vec3.divf col @@ Int.to_float ns
+
 (* 1ピクセル分を描画する *)
 (* Out_channel.t -> int -> int -> unit *)
 let render chan x y =
-  let lower_left_corner = Vec3.create (-2.0) (-1.0) (-1.0) in
-  let horizontal = Vec3.create 4.0 0.0 0.0 in
-  let vertical = Vec3.create 0.0 2.0 0.0 in
-  let origin = Vec3.create 0.0 0.0 0.0 in
-  let u = (Int.to_float x) /. (Int.to_float nx) in
-  let v = (Int.to_float y) /. (Int.to_float ny) in
-  let r = get_ray origin lower_left_corner horizontal vertical u v in
-  let col = color r scene in
+  let col = sample_ns x y in
   let (r, g, b) = Vec3.xyz col in
   begin
     Out.output_string
@@ -48,6 +54,7 @@ let render chan x y =
            (Int.to_string (Float.to_int (255.99 *. b))));
     Out.newline chan;
   end
+
 
 (* MAIN *)
 let () =
