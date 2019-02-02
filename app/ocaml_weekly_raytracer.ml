@@ -41,9 +41,9 @@ let scene = Hitable.of_list [
                 Hitable.sphere
                   (Vec3.create 0.0 (-100.5) (-1.0)) 100.0 (Material.Lambertian(Vec3.create 0.8 0.8 0.0));
                 Hitable.sphere
-                  (Vec3.create 1.0 0.0 (-1.0)) 0.5 (Material.Metal (Vec3.create 0.8 0.6 0.2));
+                  (Vec3.create 1.0 0.0 (-1.0)) 0.5 (Material.Metal ((Vec3.create 0.8 0.6 0.2), 0.3));
                 Hitable.sphere
-                  (Vec3.create (-1.0) 0.0 (-1.0)) 0.5 (Material.Metal (Vec3.create 0.8 0.8 0.8));
+                  (Vec3.create (-1.0) 0.0 (-1.0)) 0.5 (Material.Metal ((Vec3.create 0.8 0.8 0.8), 1.0));
 ]
 
 (* サンプリング1回 *)

@@ -20,10 +20,12 @@ let scatter_lambertian albedo hit_record =
   let attenuation = albedo in
   Some (scatterd, attenuation)
 
-let scatter_metal albedo r_in hit_record =
+let scatter_metal albedo fuzz r_in hit_record =
   let reflected = Vec3.reflect (Vec3.unit_vector (Ray.direction r_in))
                                (Hit_record.normal hit_record) in
-  let scatterd = Ray.create (Hit_record.p hit_record) reflected in
+  let scatterd = Ray.create (Hit_record.p hit_record)
+                            (Vec3.plus reflected
+                                       (Vec3.mulf (random_in_unit_sphere ()) fuzz)) in
   let attenuation = albedo in
   if Caml.(>) (Vec3.dot (Ray.direction scatterd) (Hit_record.normal hit_record)) 0.0 then
     Some (scatterd, attenuation)
@@ -33,6 +35,6 @@ let scatter_metal albedo r_in hit_record =
 let fn material r_in hit_record =
   match material with
     Material.Lambertian(albedo) -> scatter_lambertian albedo hit_record
-  | Material.Metal(albedo) -> scatter_metal albedo r_in hit_record
+  | Material.Metal(albedo, fuzz) -> scatter_metal albedo fuzz r_in hit_record
 
                                  
