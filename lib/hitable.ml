@@ -1,12 +1,12 @@
 open Base
 
-type t = Sphere of Vec3.t * float
+type t = Sphere of Vec3.t * float * Material.t
        | Hitable_list of t list
 
-let sphere center radius = Sphere (center, radius)
+let sphere center radius material = Sphere (center, radius, material)
 let of_list hitables = Hitable_list hitables
 
-let hit_sphere center radius r t_min t_max =
+let hit_sphere material center radius r t_min t_max =
   let oc = Vec3.minus (Ray.origin r) center in
   let a = Vec3.dot (Ray.direction r) (Ray.direction r) in
   let b = Vec3.dot oc @@ Ray.direction r in
@@ -19,7 +19,8 @@ let hit_sphere center radius r t_min t_max =
       Some (Hit_record.create
               temp
               p
-              (Vec3.divf (Vec3.minus p center) radius))
+              (Vec3.divf (Vec3.minus p center) radius)
+              material)
     else
       None
   else
@@ -29,7 +30,8 @@ let hit_sphere center radius r t_min t_max =
       Some (Hit_record.create
               temp
               p
-              (Vec3.divf (Vec3.minus p center) radius))
+              (Vec3.divf (Vec3.minus p center) radius)
+              material)
     else
       None
 
@@ -49,7 +51,7 @@ and hit_hitable_list hitable_list r t_min t_max =
      | None -> hit_hitable_list rest r t_min t_max
 and hit hitable r t_min t_max =
   match hitable with
-    Sphere (center, radius) -> hit_sphere center radius r t_min t_max
+    Sphere (center, radius, material) -> hit_sphere material center radius r t_min t_max
   | Hitable_list hitable_list -> hit_hitable_list hitable_list r t_min t_max
 
 (* TODO *)

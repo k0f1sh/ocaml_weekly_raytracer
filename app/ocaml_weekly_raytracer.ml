@@ -5,30 +5,29 @@ module Ray = Raylib.Ray
 module Hitable = Raylib.Hitable
 module Hit_record = Raylib.Hit_record
 module Camera = Raylib.Camera
+module Scatter = Raylib.Scatter
+module Material = Raylib.Material
 
 let nx = 200
 let ny = 100
 let ns = 100
 let output_file_name = "output.ppm"
 
-let rec random_in_unit_sphere () =
-  let p = (Vec3.minus
-             (Vec3.mulf
-                (Vec3.create (Random.float 1.0) (Random.float 1.0) (Random.float 1.0))
-                2.0)
-             (Vec3.create 1.0 1.0 1.0)) in
-  if Caml.(>=) (Vec3.squared_length p) 1.0 then
-    random_in_unit_sphere ()
-  else
-    p
-  
-let rec color r hitable =
+let rec color r hitable depth =
   match (Hitable.hit hitable r 0.001 Float.max_finite_value) with
     Some hit_record ->
-     let target = (Vec3.plus (Vec3.plus (Hit_record.p hit_record)
-                                        (Hit_record.normal hit_record))
-                             (random_in_unit_sphere ())) in
-     Vec3.mulf (color (Ray.create (Hit_record.p hit_record) (Vec3.minus target (Hit_record.p hit_record))) hitable) 0.5
+     if (Caml.(<) depth 50) then
+       (* Ray.t * Vec3.t *)
+       let resultopt = (Scatter.fn
+                          (Hit_record.material hit_record)
+                          r
+                          hit_record) in
+       match resultopt with
+         Some (scatterd, attenuation) ->
+          Vec3.mul (color scatterd hitable (depth + 1)) attenuation
+       | None -> Vec3.create 0.0 0.0 0.0
+     else
+       Vec3.create 0.0 0.0 0.0
   | None ->
      let unit_direction = Vec3.unit_vector (Ray.direction r) in
      let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
@@ -37,14 +36,16 @@ let rec color r hitable =
                (Vec3.mulf (Vec3.create 0.5 0.7 1.0) t)
 
 let scene = Hitable.of_list [
-                Hitable.sphere (Vec3.create 0.0 0.0 (-1.0)) 0.5;
-                Hitable.sphere (Vec3.create 0.0 (-100.5) (-1.0)) 100.0;
+                Hitable.sphere
+                  (Vec3.create 0.0 0.0 (-1.0)) 0.5 (Material.Lambertian(Vec3.create 0.8 0.3 0.3));
+                Hitable.sphere
+                  (Vec3.create 0.0 (-100.5) (-1.0)) 100.0 (Material.Lambertian(Vec3.create 0.8 0.8 0.0));
 ]
 
 (* サンプリング1回 *)
 let sample u v =
   let r = Camera.get_ray Camera.default_camera u v in
-  color r scene
+  color r scene 1
 
 (* サンプリングns回 *)
 let sample_ns x y =

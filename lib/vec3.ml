@@ -55,3 +55,5 @@ let mulf v f = {x = v.x *. f;
 
 let unit_vector v = divf v (length v)
 
+let reflect v n = (mulf v ((dot v n) *. 2.0))
+
