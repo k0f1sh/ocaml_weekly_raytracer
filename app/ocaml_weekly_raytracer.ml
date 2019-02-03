@@ -48,7 +48,7 @@ let scene = Hitable.of_list [
 
 (* サンプリング1回 *)
 let sample u v =
-  let r = Camera.get_ray Camera.default_camera u v in
+  let r = Camera.get_ray (Camera.create nx ny) u v in
   color r scene 1
 
 (* サンプリングns回 *)
