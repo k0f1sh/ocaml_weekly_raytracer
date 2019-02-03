@@ -53,7 +53,7 @@ let sample u v =
 
 (* サンプリングns回 *)
 let sample_ns x y =
-  let col = List.fold (List.range 0 100) ~init:(Vec3.create 0.0 0.0 0.0)
+  let col = List.fold (List.range 0 ns) ~init:(Vec3.create 0.0 0.0 0.0)
             ~f:(fun col _ ->
               let u = ((Int.to_float x) +. Random.float 1.0) /. (Int.to_float nx) in
               let v = ((Int.to_float y) +. Random.float 1.0) /. (Int.to_float ny) in
