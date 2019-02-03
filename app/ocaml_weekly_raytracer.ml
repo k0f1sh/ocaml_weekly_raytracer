@@ -8,9 +8,9 @@ module Camera = Raylib.Camera
 module Scatter = Raylib.Scatter
 module Material = Raylib.Material
 
-let nx = 200
-let ny = 100
-let ns = 100
+let nx = 1200
+let ny = 800
+let ns = 10
 let output_file_name = "output.ppm"
 
 let rec color r hitable depth =
@@ -35,15 +35,46 @@ let rec color r hitable depth =
      Vec3.plus (Vec3.mulf (Vec3.create 1.0 1.0 1.0) invert_t)
                (Vec3.mulf (Vec3.create 0.5 0.7 1.0) t)
 
+let random_mat () =
+  let r = Random.float 1.0 in
+  if Caml.(<)  r 0.8 then
+    Material.Lambertian (Vec3.create
+                           ((Random.float 1.0) *. (Random.float 1.0))
+                           ((Random.float 1.0) *. (Random.float 1.0))
+                           ((Random.float 1.0) *. (Random.float 1.0)))
+  else
+    if Caml.(<) r 0.95 then
+      Material.Metal ((Vec3.create
+                        (0.5 *. (1.0 +. (Random.float 1.0)))
+                        (0.5 *. (1.0 +. (Random.float 1.0)))
+                        (0.5 *. (1.0 +. (Random.float 1.0)))), 0.5 *. (Random.float 1.0))
+    else
+      Material.Dielectric 1.5
+
+let ab_list =
+  List.concat (List.map (List.range (-11) 11) ~f:(fun a ->
+                          List.map (List.range (-11) 11) ~f:(fun b ->
+                                     (a, b))))
+
+let balls =
+  List.map ab_list ~f:(fun (a, b) ->
+                          let mat = random_mat () in
+                          let center = Vec3.create
+                                         ((Int.to_float a) +. 0.9 *. (Random.float 1.0))
+                                         0.2
+                                         ((Int.to_float b) +. 0.9 *. (Random.float 1.0)) in
+                          (Hitable.sphere center 0.2 mat))
+  
 let scene = Hitable.of_list [
                 Hitable.sphere
-                  (Vec3.create 0.0 0.0 (-1.0)) 0.5 (Material.Lambertian(Vec3.create 0.8 0.3 0.3));
+                  (Vec3.create 0.0 (-1000.0) (-1.0)) 1000.0 (Material.Lambertian(Vec3.create 0.5 0.5 0.5));
                 Hitable.sphere
-                  (Vec3.create 0.0 (-100.5) (-1.0)) 100.0 (Material.Lambertian(Vec3.create 0.8 0.8 0.0));
+                  (Vec3.create 0.0 1.0 0.0) 1.0 (Material.Dielectric 1.5);
                 Hitable.sphere
-                  (Vec3.create 1.0 0.0 (-1.0)) 0.5 (Material.Metal ((Vec3.create 0.8 0.6 0.2), 0.3));
+                  (Vec3.create (-4.0) 1.0 0.0) 1.0 (Material.Lambertian ((Vec3.create 0.4 0.2 0.1)));
                 Hitable.sphere
-                  (Vec3.create (-1.0) 0.0 (-1.0)) 0.5 (Material.Dielectric 1.5);
+                  (Vec3.create 4.0 1.0 0.0) 1.0 (Material.Metal ((Vec3.create 0.7 0.6 0.5), 0.0));
+                Hitable.of_list balls;
 ]
 
 (* サンプリング1回 *)

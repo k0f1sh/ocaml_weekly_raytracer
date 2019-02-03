@@ -41,16 +41,16 @@ let _create lookfrom lookat vup vfov aspect aperture focus_dist =
   { lens_radius; origin; lower_left_corner; horizontal; vertical; u; v; w; }
 
 let create x y =
-  let lookfrom = (Vec3.create 3.0 3.0 2.0) in
-  let lookat = (Vec3.create 0.0 0.0 (-1.0)) in
+  let lookfrom = (Vec3.create 13.0 2.0 3.0) in
+  let lookat = (Vec3.create 0.0 0.0 0.0) in
   _create
     lookfrom
     lookat
     (Vec3.create 0.0 1.0 0.0)
     20.0
     ((Int.to_float x) /. (Int.to_float y))
-    2.0
-    (Vec3.length (Vec3.minus lookfrom lookat))
+    0.1
+    10.0
 
 let get_ray camera s t =
   let rd = Vec3.mulf (random_in_unit_disk ()) camera.lens_radius in
