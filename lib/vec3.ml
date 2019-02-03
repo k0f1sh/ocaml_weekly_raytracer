@@ -57,3 +57,14 @@ let unit_vector v = divf v (length v)
 
 let reflect v n = minus v (mulf n ((dot v n) *. 2.0))
 
+let refract v n ni_over_nt =
+  let uv = unit_vector v in
+  let dt = dot uv n in
+  let discriminant = 1.0 -. ni_over_nt *. ni_over_nt *. (1.0 -. dt *. dt) in
+  if Caml.(>) discriminant 0.0 then
+    Some (minus
+            (mulf (minus uv (mulf n dt)) ni_over_nt)
+            (mulf n (Float.sqrt discriminant)))
+  else
+    None
+
