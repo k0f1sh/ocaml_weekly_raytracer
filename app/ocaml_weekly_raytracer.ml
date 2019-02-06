@@ -8,8 +8,8 @@ module Camera = Raylib.Camera
 module Scatter = Raylib.Scatter
 module Material = Raylib.Material
 
-let nx = 1200
-let ny = 800
+let nx = 600
+let ny = 400
 let ns = 10
 let output_file_name = "output.ppm"
 
@@ -23,33 +23,40 @@ let rec color r hitable depth =
                           r
                           hit_record) in
        match resultopt with
-         Some (scatterd, attenuation) ->
-          Vec3.mul (color scatterd hitable (depth + 1)) attenuation
+         Some (scatterd_opt, attenuation) -> begin
+           match scatterd_opt with
+             Some (scatterd) -> Vec3.mul (color scatterd hitable (depth + 1)) attenuation
+           | None -> attenuation
+         end
        | None -> Vec3.create 0.0 0.0 0.0
      else
        Vec3.create 0.0 0.0 0.0
   | None ->
-     let unit_direction = Vec3.unit_vector (Ray.direction r) in
-     let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
-     let invert_t = 1.0 -. t in
-     Vec3.plus (Vec3.mulf (Vec3.create 1.0 1.0 1.0) invert_t)
-               (Vec3.mulf (Vec3.create 0.5 0.7 1.0) t)
+     Vec3.create 0.0 0.0 0.0
+     (* let unit_direction = Vec3.unit_vector (Ray.direction r) in
+      * let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
+      * let invert_t = 1.0 -. t in
+      * Vec3.plus (Vec3.mulf (Vec3.create 1.0 1.0 1.0) invert_t)
+      *           (Vec3.mulf (Vec3.create 0.5 0.7 1.0) t) *)
 
 let random_mat () =
   let r = Random.float 1.0 in
-  if Caml.(<)  r 0.8 then
+  if Caml.(<)  r 0.6 then
     Material.Lambertian (Vec3.create
                            ((Random.float 1.0) *. (Random.float 1.0))
                            ((Random.float 1.0) *. (Random.float 1.0))
                            ((Random.float 1.0) *. (Random.float 1.0)))
   else
-    if Caml.(<) r 0.95 then
+    if Caml.(<) r 0.8 then
       Material.Metal ((Vec3.create
                         (0.5 *. (1.0 +. (Random.float 1.0)))
                         (0.5 *. (1.0 +. (Random.float 1.0)))
                         (0.5 *. (1.0 +. (Random.float 1.0)))), 0.5 *. (Random.float 1.0))
     else
-      Material.Dielectric 1.5
+      Material.Emission ((Vec3.create
+                        (0.5 *. (1.0 +. (Random.float 1.0)))
+                        (0.5 *. (1.0 +. (Random.float 1.0)))
+                        (0.5 *. (1.0 +. (Random.float 1.0)))), 4.0 *. (Random.float 1.0))
 
 let ab_list =
   List.concat (List.map (List.range (-11) 11) ~f:(fun a ->
@@ -69,7 +76,7 @@ let scene = Hitable.of_list [
                 Hitable.sphere
                   (Vec3.create 0.0 (-1000.0) (-1.0)) 1000.0 (Material.Lambertian(Vec3.create 0.5 0.5 0.5));
                 Hitable.sphere
-                  (Vec3.create 0.0 1.0 0.0) 1.0 (Material.Dielectric 1.5);
+                  (Vec3.create 0.0 1.0 0.0) 1.0 (Material.Metal ((Vec3.create 0.3 0.4 0.9), 1.0));
                 Hitable.sphere
                   (Vec3.create (-4.0) 1.0 0.0) 1.0 (Material.Lambertian ((Vec3.create 0.4 0.2 0.1)));
                 Hitable.sphere

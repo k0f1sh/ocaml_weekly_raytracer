@@ -18,7 +18,7 @@ let scatter_lambertian albedo hit_record =
                          (random_in_unit_sphere ()) in
   let scatterd = Ray.create (Hit_record.p hit_record) (Vec3.minus target (Hit_record.p hit_record)) in
   let attenuation = albedo in
-  Some (scatterd, attenuation)
+  Some (Some scatterd, attenuation)
 
 let scatter_metal albedo fuzz r_in hit_record =
   let reflected = Vec3.reflect (Vec3.unit_vector (Ray.direction r_in))
@@ -28,7 +28,7 @@ let scatter_metal albedo fuzz r_in hit_record =
                                        (Vec3.mulf (random_in_unit_sphere ()) fuzz)) in
   let attenuation = albedo in
   if Caml.(>) (Vec3.dot (Ray.direction scatterd) (Hit_record.normal hit_record)) 0.0 then
-    Some (scatterd, attenuation)
+    Some (Some scatterd, attenuation)
   else
     None
 
@@ -59,17 +59,21 @@ let scatter_dielectric ref_idx r_in hit_record =
     Some (refracted) ->
      let reflect_probe = schlick cosine ref_idx in
      if Caml.(<) (Random.float 1.0) reflect_probe then
-       Some ((Ray.create (Hit_record.p hit_record) reflected), Vec3.create 1.0 1.0 1.0)
+       Some (Some (Ray.create (Hit_record.p hit_record) reflected), Vec3.create 1.0 1.0 1.0)
      else
-       Some ((Ray.create (Hit_record.p hit_record) refracted), Vec3.create 1.0 1.0 1.0)
+       Some (Some (Ray.create (Hit_record.p hit_record) refracted), Vec3.create 1.0 1.0 1.0)
   | None ->
-     Some ((Ray.create (Hit_record.p hit_record) reflected), Vec3.create 1.0 1.0 1.0)
-    
-    
+     Some (Some (Ray.create (Hit_record.p hit_record) reflected), Vec3.create 1.0 1.0 1.0)
+
+(* let scatter_emission r_in hit_record = *)
+let scatter_emission albedo strength =
+  Some (None, Vec3.mulf albedo strength)
+        
 let fn material r_in hit_record =
   match material with
     Material.Lambertian(albedo) -> scatter_lambertian albedo hit_record
   | Material.Metal(albedo, fuzz) -> scatter_metal albedo fuzz r_in hit_record
   | Material.Dielectric(ref_idx) -> scatter_dielectric ref_idx r_in hit_record
+  | Material.Emission(albedo, strength) -> scatter_emission albedo strength
 
                                  
