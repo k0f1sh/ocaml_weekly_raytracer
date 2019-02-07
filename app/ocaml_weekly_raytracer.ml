@@ -8,15 +8,16 @@ module Camera = Raylib.Camera
 module Scatter = Raylib.Scatter
 module Material = Raylib.Material
 
-let nx = 1200
-let ny = 800
-let ns = 100
+let nx = 500
+let ny = 500
+let ns = 5
+let max_depth = 100
 let output_file_name = "output.ppm"
 
 let rec color r hitable depth =
   match (Hitable.hit hitable r 0.001 Float.max_finite_value) with
     Some hit_record ->
-     if (Caml.(<) depth 50) then
+     if (Caml.(<) depth max_depth) then
        (* Ray.t * Vec3.t *)
        let resultopt = (Scatter.fn
                           (Hit_record.material hit_record)
@@ -32,11 +33,12 @@ let rec color r hitable depth =
      else
        Vec3.create 0.0 0.0 0.0
   | None ->
-     let unit_direction = Vec3.unit_vector (Ray.direction r) in
-     let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
-     let invert_t = 1.0 -. t in
-     Vec3.plus (Vec3.mulf (Vec3.create 0.1 0.1 0.1) invert_t)
-               (Vec3.mulf (Vec3.create 0.01 0.02 0.01) t)
+     Vec3.create 0.0 0.0 0.0
+     (* let unit_direction = Vec3.unit_vector (Ray.direction r) in
+      * let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
+      * let invert_t = 1.0 -. t in
+      * Vec3.plus (Vec3.mulf (Vec3.create 1.0 1.0 1.0) invert_t)
+      *           (Vec3.mulf (Vec3.create 0.3 0.2 0.5) t) *)
 
 let random_mat () =
   let r = Random.float 1.0 in
@@ -72,15 +74,33 @@ let balls =
                           (Hitable.sphere center 0.2 mat))
   
 let scene = Hitable.of_list [
-                Hitable.sphere
-                  (Vec3.create 0.0 (-1000.0) (-1.0)) 1000.0 (Material.Lambertian(Vec3.create 0.5 0.5 0.5));
-                Hitable.sphere
-                  (Vec3.create 0.0 1.0 0.0) 1.0 (Material.Metal ((Vec3.create 0.3 0.4 0.9), 1.0));
-                Hitable.sphere
-                  (Vec3.create (-4.0) 1.0 0.0) 1.0 (Material.Lambertian ((Vec3.create 0.4 0.2 0.1)));
-                Hitable.sphere
-                  (Vec3.create 4.0 1.0 0.0) 1.0 (Material.Metal ((Vec3.create 0.7 0.6 0.5), 0.0));
-                Hitable.of_list balls;
+                (* Hitable.sphere
+                 *   (Vec3.create 0.0 0.0 0.0) 1.0 (Material.Metal ((Vec3.create 0.3 0.4 0.9), 1.0)); *)
+                (* 手前壁 *)
+                Hitable.square (Vec3.create 1.0 2.0 0.0) (Vec3.create (-1.0) 2.0 0.0) (Vec3.create (-1.0) 0.0 0.0) (Vec3.create 1.0 0.0 0.0)
+                               (Material.Lambertian (Vec3.create 0.8 0.8 0.8));
+                (* 正面壁 *)
+                Hitable.square (Vec3.create 1.0 2.0 0.0) (Vec3.create 1.0 0.0 0.0) (Vec3.create (-1.0) 0.0 0.0) (Vec3.create (-1.0) 2.0 0.0)
+                               (Material.Lambertian (Vec3.create 0.8 0.8 0.8));
+                (* 天井 *)
+                Hitable.square (Vec3.create 1.0 2.0 0.0) (Vec3.create (-1.0) 2.0 0.0) (Vec3.create (-1.0) 2.0 (-2.0)) (Vec3.create 1.0 2.0 (-2.0))
+                               (Material.Lambertian (Vec3.create 0.8 0.8 0.8));
+                (* 左壁 *)
+                Hitable.square (Vec3.create 1.0 2.0 0.0) (Vec3.create 1.0 2.0 (-2.0)) (Vec3.create 1.0 0.0 (-2.0)) (Vec3.create 1.0 0.0 0.0)
+                               (Material.Lambertian (Vec3.create 0.8 0.1 0.1));
+                (* 右壁 *)
+                Hitable.square (Vec3.create (-1.0) 2.0 0.0) (Vec3.create (-1.0) 0.0 0.0) (Vec3.create (-1.0) 0.0 (-2.0)) (Vec3.create (-1.0) 2.0 (-2.0))
+                               (Material.Lambertian (Vec3.create 0.1 0.1 0.8));
+                (* 床壁 *)
+                Hitable.square (Vec3.create 1.0 0.0 0.0) (Vec3.create 1.0 0.0 (-2.0)) (Vec3.create (-1.0) 0.0 (-2.0)) (Vec3.create (-1.0) 0.0 0.0) 
+                               (Material.Lambertian (Vec3.create 0.9 0.9 0.9));
+                (* ライト *)
+                Hitable.sphere (Vec3.create 0.0 2.2 (-1.0)) 0.3 (Material.Emission ((Vec3.create 1.0 1.0 1.0), 20.0));
+                (* 左たま *)
+                Hitable.sphere (Vec3.create 0.5 0.4 (-0.2)) 0.4 (Material.Metal ((Vec3.create 1.0 1.0 1.0), 1.0));
+                (* 右たま *)
+                Hitable.sphere (Vec3.create (-0.5) 0.3 (-0.6)) 0.3 (Material.Metal ((Vec3.create 1.0 1.0 1.0), 1.0));
+                (* Hitable.of_list balls; *)
 ]
 
 (* サンプリング1回 *)

@@ -68,3 +68,12 @@ let refract v n ni_over_nt =
   else
     None
 
+(* (defn get-normal [v0 v1 v2]
+ *   (let [t0 (v/sub v1 v0)
+ *         t1 (v/sub v2 v0)]
+ *     (v/unit-vector (v/cross t1 t0)))) *)
+
+let normal v1 v2 v3 =
+  let t0 = minus v2 v1 in
+  let t1 = minus v3 v1 in
+  unit_vector @@ cross t1 t0

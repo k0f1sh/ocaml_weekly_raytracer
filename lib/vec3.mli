@@ -24,4 +24,4 @@ val cross: t -> t -> t
 val unit_vector: t -> t
 val reflect: t -> t -> t
 val refract: t -> t -> float -> t option
-
+val normal: t -> t -> t -> t
