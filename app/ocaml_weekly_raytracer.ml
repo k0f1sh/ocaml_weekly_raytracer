@@ -8,9 +8,9 @@ module Camera = Raylib.Camera
 module Scatter = Raylib.Scatter
 module Material = Raylib.Material
 
-let nx = 600
-let ny = 400
-let ns = 10
+let nx = 1200
+let ny = 800
+let ns = 100
 let output_file_name = "output.ppm"
 
 let rec color r hitable depth =
@@ -32,12 +32,11 @@ let rec color r hitable depth =
      else
        Vec3.create 0.0 0.0 0.0
   | None ->
-     Vec3.create 0.0 0.0 0.0
-     (* let unit_direction = Vec3.unit_vector (Ray.direction r) in
-      * let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
-      * let invert_t = 1.0 -. t in
-      * Vec3.plus (Vec3.mulf (Vec3.create 1.0 1.0 1.0) invert_t)
-      *           (Vec3.mulf (Vec3.create 0.5 0.7 1.0) t) *)
+     let unit_direction = Vec3.unit_vector (Ray.direction r) in
+     let t = 0.5 *. ((Vec3.y unit_direction) +. 1.0) in
+     let invert_t = 1.0 -. t in
+     Vec3.plus (Vec3.mulf (Vec3.create 0.1 0.1 0.1) invert_t)
+               (Vec3.mulf (Vec3.create 0.01 0.02 0.01) t)
 
 let random_mat () =
   let r = Random.float 1.0 in
