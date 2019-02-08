@@ -10,8 +10,8 @@ module Material = Raylib.Material
 
 let nx = 500
 let ny = 500
-let ns = 50
-let max_depth = 10
+let ns = 500
+let max_depth = 5
 let output_file_name = "output.ppm"
 
 let rec color r hitable depth =
