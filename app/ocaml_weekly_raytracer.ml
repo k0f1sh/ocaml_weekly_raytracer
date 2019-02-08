@@ -10,8 +10,8 @@ module Material = Raylib.Material
 
 let nx = 500
 let ny = 500
-let ns = 5
-let max_depth = 100
+let ns = 50
+let max_depth = 10
 let output_file_name = "output.ppm"
 
 let rec color r hitable depth =
@@ -77,7 +77,7 @@ let scene = Hitable.of_list [
                 (* Hitable.sphere
                  *   (Vec3.create 0.0 0.0 0.0) 1.0 (Material.Metal ((Vec3.create 0.3 0.4 0.9), 1.0)); *)
                 (* 手前壁 *)
-                Hitable.square (Vec3.create 1.0 2.0 0.0) (Vec3.create (-1.0) 2.0 0.0) (Vec3.create (-1.0) 0.0 0.0) (Vec3.create 1.0 0.0 0.0)
+                Hitable.square (Vec3.create 1.0 2.0 (-2.0)) (Vec3.create (-1.0) 2.0 (-2.0)) (Vec3.create (-1.0) 0.0 (-2.0)) (Vec3.create 1.0 0.0 (-2.0))
                                (Material.Lambertian (Vec3.create 0.8 0.8 0.8));
                 (* 正面壁 *)
                 Hitable.square (Vec3.create 1.0 2.0 0.0) (Vec3.create 1.0 0.0 0.0) (Vec3.create (-1.0) 0.0 0.0) (Vec3.create (-1.0) 2.0 0.0)
@@ -97,9 +97,9 @@ let scene = Hitable.of_list [
                 (* ライト *)
                 Hitable.sphere (Vec3.create 0.0 2.2 (-1.0)) 0.3 (Material.Emission ((Vec3.create 1.0 1.0 1.0), 20.0));
                 (* 左たま *)
-                Hitable.sphere (Vec3.create 0.5 0.4 (-0.2)) 0.4 (Material.Metal ((Vec3.create 1.0 1.0 1.0), 1.0));
+                Hitable.sphere (Vec3.create 0.5 0.4 (-0.8)) 0.4 (Material.Metal ((Vec3.create 1.0 1.0 1.0), 0.0));
                 (* 右たま *)
-                Hitable.sphere (Vec3.create (-0.5) 0.3 (-0.6)) 0.3 (Material.Metal ((Vec3.create 1.0 1.0 1.0), 1.0));
+                Hitable.sphere (Vec3.create (-0.5) 0.3 (-1.4)) 0.3 (Material.Dielectric 1.5);
                 (* Hitable.of_list balls; *)
 ]
 
